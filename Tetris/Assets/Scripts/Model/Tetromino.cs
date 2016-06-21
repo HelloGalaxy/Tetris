@@ -22,6 +22,7 @@ public class Tetromino : MonoBehaviour
         set { transform.localPosition = new Vector3(transform.localPosition.x, value); }
     }
 
+    // Similar: need to refactoring, using the visitor or startegy?
     [ContextMenu("RotateLeft")]
     public void RotateLeft()
     {

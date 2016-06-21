@@ -9,6 +9,7 @@ public class GameCtrl : MonoBehaviour
     public int row = 16;
     public int col = 12;
     public GameObject bgBlockPrefab;
+    public GameObject brickPrefab;
 
     public float downStepTime = 2f;
 
@@ -54,8 +55,8 @@ public class GameCtrl : MonoBehaviour
     {
         if (currentTeromino != null)
             Destroy(currentTeromino.gameObject);
-        //currentTeromino = Instantiate<Tetromino>(tetrominos[Random.Range(0, tetrominos.Count)]);
-        currentTeromino = Instantiate<Tetromino>(tetrominos[5]);
+        currentTeromino = Instantiate<Tetromino>(tetrominos[Random.Range(0, tetrominos.Count)]);
+        //currentTeromino = Instantiate<Tetromino>(tetrominos[5]);
         currentTeromino.transform.parent = this.transform;
         currentTeromino.transform.localPosition = new Vector3(0, 1);
     }
@@ -77,9 +78,7 @@ public class GameCtrl : MonoBehaviour
             int x = xOff + j;
             // Debug.Log(string.Format("{0}, {1}", yOff, x));
             if (map[yOff, x] && currentTeromino.bricks[currentTeromino.col * (currentTeromino.row - 1) + j])
-            {
                 return false;
-            }
         }
 
         return true;
@@ -98,10 +97,11 @@ public class GameCtrl : MonoBehaviour
             }
         }
 
+        DrawMap();
     }
 
-    [ContextMenu("DrawBackGround")]
-    void DrawBackGround()
+    [ContextMenu("DrawMap")]
+    void DrawMap()
     {
         transform.DestroyAllChildren();
         var cells = new GameObject();
@@ -109,12 +109,13 @@ public class GameCtrl : MonoBehaviour
         cells.transform.localPosition = Vector3.zero;
         cells.name = "Cells";
 
-        map = new bool[row, col];
+        if (map == null)
+            map = new bool[row, col];
         for (var i = 0; i < col; i++)
         {
             for (var j = 0; j < row; j++)
             {
-                var bgBlock = Instantiate(bgBlockPrefab);
+                var bgBlock = Instantiate(map[j, i] ? brickPrefab : bgBlockPrefab);
                 bgBlock.transform.parent = cells.transform;
                 bgBlock.name = string.Format("brick[{0},{1}]", i, j);
                 bgBlock.transform.localPosition = new Vector3(i, -j, 0);
