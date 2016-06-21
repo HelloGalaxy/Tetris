@@ -33,12 +33,14 @@ public class GameCtrl : MonoBehaviour
             yield return new WaitForSeconds(downStepTime);
             currentTeromino.Y -= 1;
             yOff++;
-            if (isInside())
+            if (isOutSide() || !canDown())
             {
                 yOff--;
+                currentTeromino.Y += 1;
                 SaveToMap();
-                //SpawnTeromino();
+                SpawnTeromino();
                 PrintStringMap();
+                yOff = 0;
             }
         }
     }
@@ -50,17 +52,37 @@ public class GameCtrl : MonoBehaviour
 
     void SpawnTeromino()
     {
-        yOff = 0;
         if (currentTeromino != null)
             Destroy(currentTeromino.gameObject);
-        currentTeromino = Instantiate<Tetromino>(tetrominos[Random.Range(0, tetrominos.Count)]);
+        //currentTeromino = Instantiate<Tetromino>(tetrominos[Random.Range(0, tetrominos.Count)]);
+        currentTeromino = Instantiate<Tetromino>(tetrominos[5]);
         currentTeromino.transform.parent = this.transform;
-        currentTeromino.transform.localPosition = new Vector3(0, row - 1);
+        currentTeromino.transform.localPosition = new Vector3(0, 1);
     }
 
-    bool isInside()
+    bool isOutSide()
     {
         return yOff > row;
+    }
+
+    bool canDown()
+    {
+        if (yOff >= row)
+            return false;
+        else if (yOff == 0)
+            return true;
+
+        for (var j = 0; j < currentTeromino.col; j++)
+        {
+            int x = xOff + j;
+            // Debug.Log(string.Format("{0}, {1}", yOff, x));
+            if (map[yOff, x] && currentTeromino.bricks[currentTeromino.col * (currentTeromino.row - 1) + j])
+            {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     void SaveToMap()
@@ -69,9 +91,13 @@ public class GameCtrl : MonoBehaviour
         {
             for (var j = 0; j < currentTeromino.col; j++)
             {
-                map[(int)currentTeromino.X, (int)currentTeromino.Y - currentTeromino.row + j] = currentTeromino.bricks[currentTeromino.col * i + j];
+                int x = i + yOff + 1 - currentTeromino.row;
+                int y = j;
+                //Debug.Log(string.Format("[{0},{1}] vs [{2},{3}] {4}", i, j, x, y, currentTeromino.col * i + j));
+                map[x, y] = currentTeromino.bricks[currentTeromino.col * i + j];
             }
         }
+
     }
 
     [ContextMenu("DrawBackGround")]
@@ -79,8 +105,8 @@ public class GameCtrl : MonoBehaviour
     {
         transform.DestroyAllChildren();
         var cells = new GameObject();
-        cells.transform.localPosition = Vector3.zero;
         cells.transform.parent = this.transform;
+        cells.transform.localPosition = Vector3.zero;
         cells.name = "Cells";
 
         map = new bool[row, col];
@@ -91,7 +117,7 @@ public class GameCtrl : MonoBehaviour
                 var bgBlock = Instantiate(bgBlockPrefab);
                 bgBlock.transform.parent = cells.transform;
                 bgBlock.name = string.Format("brick[{0},{1}]", i, j);
-                bgBlock.transform.localPosition = new Vector3(i, j, 0);
+                bgBlock.transform.localPosition = new Vector3(i, -j, 0);
             }
         }
     }
