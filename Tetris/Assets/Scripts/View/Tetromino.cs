@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections;
+using System;
 
 namespace View
 {
@@ -24,32 +25,24 @@ namespace View
             set { transform.localPosition = new Vector3(transform.localPosition.x, value); }
         }
 
-        //TODO：Similar: need to refactoring, using the visitor or startegy?
         [ContextMenu("RotateLeft")]
         public void RotateLeft()
         {
-            var tmp = new bool[bricks.Length];
-            for (var i = 0; i < row; i++)
-                for (var j = 0; j < col; j++)
-                    tmp[(col - j - 1) * row + i] = bricks[i * col + j];
-
-            var tmpCount = row;
-            row = col;
-            col = tmpCount;
-            bricks = tmp;
-            DrawShape();
+            Rotate((newBricks, i, j) => { newBricks[(col - j - 1) * row + i] = bricks[i * col + j]; });
         }
 
         [ContextMenu("RotateRight")]
         public void RotateRight()
         {
+            Rotate((newBricks, i, j) => { newBricks[j * row + row - i - 1] = bricks[i * col + j]; });
+        }
+
+        void Rotate(Action<bool[], int, int> rotateCallback)
+        {
             var tmp = new bool[bricks.Length];
             for (var i = 0; i < row; i++)
                 for (var j = 0; j < col; j++)
-                {
-                    //Debug.Log((j * row + row - i - 1) + "  : i " + i + " : " + j);
-                    tmp[j * row + row - i - 1] = bricks[i * col + j];
-                }
+                    rotateCallback(tmp, i, j);
 
             var tmpCount = row;
             row = col;

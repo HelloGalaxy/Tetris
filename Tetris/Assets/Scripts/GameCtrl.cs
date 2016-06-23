@@ -114,11 +114,11 @@ namespace Game
                     yOff--;
                     currentTeromino.Y += 1;
 
-                    if (isDead())
+                    if (IsDead())
                         break;
 
                     SaveToMap();
-                    RemoveFullRow();
+                    RemoveFullRows();
                     mapView.UpdateView(map, row, col);
 
                     SpawnTeromino();
@@ -166,7 +166,7 @@ namespace Game
             return true;
         }
 
-        bool isDead()
+        bool IsDead()
         {
             for (var i = 0; i < currentTeromino.row; i++)
             {
@@ -184,7 +184,7 @@ namespace Game
             return false;
         }
 
-        void RemoveFullRow()
+        void RemoveFullRows()
         {
             var removed = new List<int>();
             // check which row is full
