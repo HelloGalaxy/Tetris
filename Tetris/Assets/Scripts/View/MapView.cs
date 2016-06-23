@@ -1,46 +1,57 @@
 ﻿using UnityEngine;
 using System.Collections;
 using System.Text;
+using Game;
+using System.Collections.Generic;
 
 public class MapView : MonoBehaviour
 {
     public GameObject bgBlockPrefab;
     public GameObject brickPrefab;
+    public GameCtrl ctrl;
 
-    int row = 0;
-    int col = 0;
-    private bool[,] map;
+    public List<GameObject> bricks;
 
-    public void UpdateView(bool[,] map, int row, int col)
+    public void UpdateView()
     {
-        this.row = row;
-        this.col = col;
-        this.map = map;
-
-        DrawMap();
+        UpdateCells();
         PrintStringMap();
+    }
+
+    void UpdateCells()
+    {
+        for (var i = 0; i < ctrl.col; i++)
+        {
+            for (var j = 0; j < ctrl.row; j++)
+            {
+                bricks[j * ctrl.col + i].SetActive(ctrl.map[j, i]);
+            }
+        }
     }
 
     [ContextMenu("DrawMap")]
     void DrawMap()
     {
-        // TODO: bad, need using object pool to handle this logic
-        transform.DestroyAllChildren();
-        var cells = new GameObject();
-        cells.transform.parent = this.transform;
-        cells.transform.localPosition = Vector3.zero;
-        cells.name = "Cells";
+        bricks = new List<GameObject>();
 
-        if (map == null)
-            map = new bool[row, col];
-        for (var i = 0; i < col; i++)
+        for (var i = 0; i < ctrl.row * ctrl.col; i++)
+            bricks.Add(null);
+
+        this.transform.DestroyAllChildren();
+        var brickCells = this.gameObject.CreateNewGameObject(transform, "BrickCells");
+
+        var map = new bool[ctrl.row, ctrl.col];
+
+        for (var i = 0; i < ctrl.col; i++)
         {
-            for (var j = 0; j < row; j++)
+            for (var j = 0; j < ctrl.row; j++)
             {
-                var bgBlock = Instantiate(map[j, i] ? brickPrefab : bgBlockPrefab);
-                bgBlock.transform.parent = cells.transform;
-                bgBlock.name = string.Format("brick[{0},{1}]", i, j);
-                bgBlock.transform.localPosition = new Vector3(i, -j, 0);
+                bgBlockPrefab.CloneGameObjectFromSelf(brickCells.transform,
+                    string.Format("bgCell[{0},{1}]", j, i), new Vector3(i, -j, 0));
+                var brick = brickPrefab.CloneGameObjectFromSelf(brickCells.transform,
+                    string.Format("brickCell[{0},{1}]", j, i), new Vector3(i, -j, 0));
+                brick.SetActive(false);
+                bricks[j * ctrl.col + i] = brick;
             }
         }
     }
@@ -49,11 +60,11 @@ public class MapView : MonoBehaviour
     {
         StringBuilder builder = new StringBuilder();
 
-        for (var i = 0; i < row; i++)
+        for (var i = 0; i < ctrl.row; i++)
         {
-            for (var j = 0; j < col; j++)
+            for (var j = 0; j < ctrl.col; j++)
             {
-                builder.Append((map[i, j] ? 1 : 0) + " ");
+                builder.Append((ctrl.map[i, j] ? 1 : 0) + " ");
             }
             builder.Append("\n");
         }

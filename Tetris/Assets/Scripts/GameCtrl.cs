@@ -19,14 +19,14 @@ namespace Game
         public float _downStepTime = 0.4f;
 
         bool isAccelerated = false;
-        bool[,] map;
+        public bool[,] map;
+
 
         Tetromino currentTeromino;
         public MapView mapView;
 
         int yOff = 0;
         int xOff = 0;
-
 
         public float downStepTime
         {
@@ -119,7 +119,7 @@ namespace Game
 
                     SaveToMap();
                     RemoveFullRows();
-                    mapView.UpdateView(map, row, col);
+                    mapView.UpdateView();
 
                     SpawnTeromino();
                     yOff = 0;
