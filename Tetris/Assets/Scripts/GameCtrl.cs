@@ -14,16 +14,24 @@ namespace Game
         public List<Tetromino> tetrominos;
         public int row = 16;
         public int col = 12;
-        public GameObject bgBlockPrefab;
-        public GameObject brickPrefab;
 
-        public float downStepTime = 2f;
+        public float _accDownStepTime = 0.1f;
+        public float _downStepTime = 0.4f;
 
+        bool isAccelerated = false;
         bool[,] map;
 
         Tetromino currentTeromino;
+        public MapView mapView;
+
         int yOff = 0;
         int xOff = 0;
+
+
+        public float downStepTime
+        {
+            get { return isAccelerated ? _accDownStepTime : _downStepTime; }
+        }
 
         void Awake()
         {
@@ -31,6 +39,7 @@ namespace Game
             InputCtrl.onRight += OnRight;
             InputCtrl.onRotateRight += OnRotateRight;
             InputCtrl.onRotateLeft += OnRotateLeft;
+            InputCtrl.onDown += OnDown;
         }
 
         void OnDestroy()
@@ -39,9 +48,15 @@ namespace Game
             InputCtrl.onRight -= OnRight;
             InputCtrl.onRotateRight -= OnRotateRight;
             InputCtrl.onRotateLeft -= OnRotateLeft;
+            InputCtrl.onDown -= OnDown;
         }
 
-        private void OnRight()
+        void OnDown(bool pressed)
+        {
+            isAccelerated = pressed;
+        }
+
+        void OnRight()
         {
             if (xOff >= col - currentTeromino.col)
                 return;
@@ -49,7 +64,7 @@ namespace Game
             currentTeromino.X += 1;
         }
 
-        private void OnLeft()
+        void OnLeft()
         {
             if (xOff <= 0)
                 return;
@@ -57,22 +72,33 @@ namespace Game
             currentTeromino.X -= 1;
         }
 
-        private void OnRotateLeft()
+        void OnRotateLeft()
         {
             currentTeromino.RotateLeft();
+            CheckMargin();
         }
 
-        private void OnRotateRight()
+        void OnRotateRight()
         {
             currentTeromino.RotateRight();
+            CheckMargin();
+        }
+
+        void CheckMargin()
+        {
+            if (xOff + currentTeromino.col >= col)
+            {
+                var diff = xOff + currentTeromino.col - col;
+                xOff -= diff;
+                currentTeromino.X = xOff;
+            }
         }
 
         void Start()
         {
-            GameStart();
+            map = new bool[row, col];
             SpawnTeromino();
             StartCoroutine(DownStep());
-            PrintStringMap();
         }
 
         IEnumerator DownStep()
@@ -82,22 +108,24 @@ namespace Game
                 yield return new WaitForSeconds(downStepTime);
                 currentTeromino.Y -= 1;
                 yOff++;
-                if (isOutside() || !canDown())
+
+                if (IsOutside() || !CanDown())
                 {
                     yOff--;
                     currentTeromino.Y += 1;
+
+                    if (isDead())
+                        break;
+
                     SaveToMap();
+                    RemoveFullRow();
+                    mapView.UpdateView(map, row, col);
+
                     SpawnTeromino();
-                    PrintStringMap();
                     yOff = 0;
                     xOff = 0;
                 }
             }
-        }
-
-        void GameStart()
-        {
-            map = new bool[row, col];
         }
 
         void SpawnTeromino()
@@ -105,32 +133,82 @@ namespace Game
             if (currentTeromino != null)
                 Destroy(currentTeromino.gameObject);
             currentTeromino = Instantiate<Tetromino>(tetrominos[UnityEngine.Random.Range(0, tetrominos.Count)]);
-            //currentTeromino = Instantiate<Tetromino>(tetrominos[5]);
             currentTeromino.transform.parent = this.transform;
             currentTeromino.transform.localPosition = new Vector3(0, 1);
         }
 
-        bool isOutside()
+        bool IsOutside()
         {
             return yOff > row;
         }
 
-        bool canDown()
+        bool CanDown()
         {
             if (yOff >= row)
                 return false;
             else if (yOff == 0)
                 return true;
 
-            for (var j = 0; j < currentTeromino.col; j++)
+            for (var i = 0; i < currentTeromino.row; i++)
             {
-                int x = xOff + j;
-                // Debug.Log(string.Format("{0}, {1}", yOff, x));
-                if (map[yOff, x] && currentTeromino.bricks[currentTeromino.col * (currentTeromino.row - 1) + j])
-                    return false;
+                for (var j = 0; j < currentTeromino.col; j++)
+                {
+                    int x = i + yOff + 1 - currentTeromino.row;
+                    int y = j + xOff;
+                    //Debug.Log(string.Format("[{0},{1}] vs [{2},{3}] {4}", i, j, x, y, currentTeromino.col * i + j));
+                    if (x < 0 || y < 0)
+                        continue;
+                    if (map[x, y] && currentTeromino.bricks[currentTeromino.col * i + j])
+                        return false;
+                }
             }
 
             return true;
+        }
+
+        bool isDead()
+        {
+            for (var i = 0; i < currentTeromino.row; i++)
+            {
+                for (var j = 0; j < currentTeromino.col; j++)
+                {
+                    int x = i + yOff + 1 - currentTeromino.row;
+                    int y = j + xOff;
+                    if (x < 0 || y < 0 || x != 0)
+                        continue;
+                    if (map[x, y] && currentTeromino.bricks[currentTeromino.col * i + j])
+                        return true;
+                }
+            }
+
+            return false;
+        }
+
+        void RemoveFullRow()
+        {
+            var removed = new List<int>();
+            // check which row is full
+            for (var i = row - 1; i >= 0; i--)
+            {
+                var isFull = true;
+                for (var j = 0; j < col && isFull; j++)
+                {
+                    isFull = isFull && map[i, j];
+                }
+                if (isFull)
+                    removed.Add(i);
+            }
+
+            //copy other rows
+            for (var k = 0; k < removed.Count; k++)
+            {
+                for (int i = removed[k]; i >= 1; i--)
+                    for (var j = 0; j < col; j++)
+                        map[i, j] = map[i - 1, j];
+
+                if (k + 1 < removed.Count)
+                    removed[k + 1] += 1;
+            }
         }
 
         void SaveToMap()
@@ -141,51 +219,11 @@ namespace Game
                 {
                     int x = i + yOff + 1 - currentTeromino.row;
                     int y = j + xOff;
-                    //Debug.Log(string.Format("[{0},{1}] vs [{2},{3}] {4}", i, j, x, y, currentTeromino.col * i + j));
+                    if (x < 0 || y < 0)
+                        break;
                     map[x, y] = map[x, y] || currentTeromino.bricks[currentTeromino.col * i + j];
                 }
             }
-
-            DrawMap();
-        }
-
-        [ContextMenu("DrawMap")]
-        void DrawMap()
-        {
-            transform.DestroyAllChildren();
-            var cells = new GameObject();
-            cells.transform.parent = this.transform;
-            cells.transform.localPosition = Vector3.zero;
-            cells.name = "Cells";
-
-            if (map == null)
-                map = new bool[row, col];
-            for (var i = 0; i < col; i++)
-            {
-                for (var j = 0; j < row; j++)
-                {
-                    var bgBlock = Instantiate(map[j, i] ? brickPrefab : bgBlockPrefab);
-                    bgBlock.transform.parent = cells.transform;
-                    bgBlock.name = string.Format("brick[{0},{1}]", i, j);
-                    bgBlock.transform.localPosition = new Vector3(i, -j, 0);
-                }
-            }
-        }
-
-        void PrintStringMap()
-        {
-            StringBuilder builder = new StringBuilder();
-
-            for (var i = 0; i < row; i++)
-            {
-                for (var j = 0; j < col; j++)
-                {
-                    builder.Append((map[i, j] ? 1 : 0) + " ");
-                }
-                builder.Append("\n");
-            }
-
-            Debug.Log(builder.ToString());
         }
     }
 }

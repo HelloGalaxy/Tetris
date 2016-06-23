@@ -10,6 +10,7 @@ namespace Game.Device
         public static event Action onLeft;
         public static event Action onRotateRight;
         public static event Action onRotateLeft;
+        public static event Action<bool> onDown;
 
         void Update()
         {
@@ -33,6 +34,11 @@ namespace Game.Device
             {
                 if (onRotateRight != null)
                     onRotateRight();
+            }
+
+            if (onDown != null)
+            {
+                onDown(Input.GetKey(KeyCode.DownArrow));
             }
         }
     }
