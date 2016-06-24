@@ -125,18 +125,10 @@ namespace Game
             {
                 var x = yOff - 1 + i;
                 var y = xOff + currentTeromino.col;
-                if (xOff + currentTeromino.col >= col || (x >= row && x < 0))
+                if (y >= col || (x >= row && x < 0))
                     break;
-                try
-                {
-                    if (currentTeromino.bricks[i * currentTeromino.col + currentTeromino.col - 1] && map[x, y])
-                        return false;
-                }
-                catch (Exception ex)
-                {
-
+                if (currentTeromino.bricks[i * currentTeromino.col + currentTeromino.col - 1] && map[x, y])
                     return false;
-                }
             }
 
             return true;
