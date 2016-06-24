@@ -58,7 +58,7 @@ namespace Game
 
         void OnRight()
         {
-            if (xOff >= col - currentTeromino.col)
+            if (!CanMoveRight())
                 return;
             xOff++;
             currentTeromino.X += 1;
@@ -66,7 +66,7 @@ namespace Game
 
         void OnLeft()
         {
-            if (xOff <= 0)
+            if (!CanMoveLeft())
                 return;
             xOff--;
             currentTeromino.X -= 1;
@@ -75,12 +75,16 @@ namespace Game
         void OnRotateLeft()
         {
             currentTeromino.RotateLeft();
+            if (!CanDown())
+                currentTeromino.RotateRight();
             CheckMargin();
         }
 
         void OnRotateRight()
         {
             currentTeromino.RotateRight();
+            if (!CanDown())
+                currentTeromino.RotateLeft();
             CheckMargin();
         }
 
@@ -92,6 +96,50 @@ namespace Game
                 xOff -= diff;
                 currentTeromino.X = xOff;
             }
+        }
+
+        bool CanMoveLeft()
+        {
+            if (xOff <= 0)
+                return false;
+
+            for (var i = 0; i < currentTeromino.row; i++)
+            {
+                var x = yOff + i - 1;
+                var y = xOff - 1;
+                if (y < 0 || (x >= row && x < 0))
+                    break;
+                if (currentTeromino.bricks[i * currentTeromino.col] && map[x, y])
+                    return false;
+            }
+
+            return true;
+        }
+
+        bool CanMoveRight()
+        {
+            if (xOff >= col - currentTeromino.col)
+                return false;
+
+            for (var i = 0; i < currentTeromino.row; i++)
+            {
+                var x = yOff - 1 + i;
+                var y = xOff + currentTeromino.col;
+                if (xOff + currentTeromino.col >= col || (x >= row && x < 0))
+                    break;
+                try
+                {
+                    if (currentTeromino.bricks[i * currentTeromino.col + currentTeromino.col - 1] && map[x, y])
+                        return false;
+                }
+                catch (Exception ex)
+                {
+
+                    return false;
+                }
+            }
+
+            return true;
         }
 
         void Start()

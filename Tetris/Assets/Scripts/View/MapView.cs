@@ -38,6 +38,7 @@ public class MapView : MonoBehaviour
             bricks.Add(null);
 
         this.transform.DestroyAllChildren();
+        var bgCells = this.gameObject.CreateNewGameObject(transform, "BgCells");
         var brickCells = this.gameObject.CreateNewGameObject(transform, "BrickCells");
 
         var map = new bool[ctrl.row, ctrl.col];
@@ -46,7 +47,7 @@ public class MapView : MonoBehaviour
         {
             for (var j = 0; j < ctrl.row; j++)
             {
-                bgBlockPrefab.CloneGameObjectFromSelf(brickCells.transform,
+                bgBlockPrefab.CloneGameObjectFromSelf(bgCells.transform,
                     string.Format("bgCell[{0},{1}]", j, i), new Vector3(i, -j, 0));
                 var brick = brickPrefab.CloneGameObjectFromSelf(brickCells.transform,
                     string.Format("brickCell[{0},{1}]", j, i), new Vector3(i, -j, 0));
