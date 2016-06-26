@@ -41,8 +41,6 @@ public class MapView : MonoBehaviour
         var bgCells = this.gameObject.CreateNewGameObject(transform, "BgCells");
         var brickCells = this.gameObject.CreateNewGameObject(transform, "BrickCells");
 
-        var map = new bool[ctrl.row, ctrl.col];
-
         for (var i = 0; i < ctrl.col; i++)
         {
             for (var j = 0; j < ctrl.row; j++)

@@ -4,7 +4,7 @@ using System;
 
 namespace View
 {
-    public class Tetromino : MonoBehaviour
+    public class TetrominoView : MonoBehaviour
     {
         public GameObject brick;
 

@@ -11,7 +11,7 @@ namespace Game
 
     public class GameCtrl : MonoBehaviour
     {
-        public List<Tetromino> tetrominos;
+        public List<TetrominoView> tetrominos;
         public int row = 16;
         public int col = 12;
 
@@ -22,7 +22,7 @@ namespace Game
         public bool[,] map;
 
 
-        Tetromino currentTeromino;
+        TetrominoView currentTeromino;
         public MapView mapView;
 
         int yOff = 0;
@@ -172,7 +172,7 @@ namespace Game
         {
             if (currentTeromino != null)
                 Destroy(currentTeromino.gameObject);
-            currentTeromino = Instantiate<Tetromino>(tetrominos[UnityEngine.Random.Range(0, tetrominos.Count)]);
+            currentTeromino = Instantiate<TetrominoView>(tetrominos[UnityEngine.Random.Range(0, tetrominos.Count)]);
             currentTeromino.transform.parent = this.transform;
             currentTeromino.transform.localPosition = new Vector3(0, 1);
         }
