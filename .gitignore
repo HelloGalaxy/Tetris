@@ -4,3 +4,5 @@ Tetris/Library/
 *.sln
 Tetris/Temp/UnityLockfile
 Tetris/Temp/
+/Library
+/Temp
