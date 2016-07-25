@@ -21,7 +21,6 @@ namespace Game
         bool isAccelerated = false;
         public bool[,] map;
 
-
         TetrominoView currentTeromino;
         public MapView mapView;
 
@@ -75,17 +74,17 @@ namespace Game
         void OnRotateLeft()
         {
             currentTeromino.RotateLeft();
+            CheckMargin();
             if (!CanDown())
                 currentTeromino.RotateRight();
-            CheckMargin();
         }
 
         void OnRotateRight()
         {
             currentTeromino.RotateRight();
+            CheckMargin();
             if (!CanDown())
                 currentTeromino.RotateLeft();
-            CheckMargin();
         }
 
         void CheckMargin()
