@@ -33,7 +33,7 @@
 					
 					//物体的顶点变换到世界坐标系
 					o.pos = mul(UNITY_MATRIX_MVP, v.vertex);
-					o.worldNormal = mul(UNITY_MATRIX_MVP, v.normal);				
+					o.worldNormal = mul(v.normal, (float3x3)_World2Object);// mul(UNITY_MATRIX_MVP, v.normal);				
 					return o;
 				}
 				
@@ -41,7 +41,7 @@
 					
 					fixed3 ambient = UNITY_LIGHTMODEL_AMBIENT.xyz;
 					fixed3 worldNormal = normalize(i.worldNormal);
-					fixed3 worldLightDir = normalize(_WorldSpaceLightPos0.xyz);
+					fixed3 worldLightDir = normalize(UnityWorldSpaceLightDir(i.pos));//_WorldSpaceLightPos0.xyz
 					
 					fixed3 diffuse = (_LightColor0.rgb * _Diffuse.rgb) * (0.5 + 0.5 * dot(worldNormal, worldLightDir));
 
