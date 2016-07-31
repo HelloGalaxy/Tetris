@@ -1,4 +1,7 @@
-﻿Shader "Custom/SpecluarBinnPhong" {
+﻿// Upgrade NOTE: replaced '_Object2World' with 'unity_ObjectToWorld'
+// Upgrade NOTE: replaced '_World2Object' with 'unity_WorldToObject'
+
+Shader "Custom/SpecluarBinnPhong" {
 	
 	Properties {
 		_Diffuse ("Diffuse", Color) = (1,1,1,1)
@@ -36,8 +39,8 @@
 				
 				v2f o;
 				o.pos = mul(UNITY_MATRIX_MVP, v.vertex);
-				o.worldNormal = normalize(mul(v.normal, (float3x3)_World2Object));
-				o.worldPos = mul(_Object2World, v.vertex).xyz;				
+				o.worldNormal = normalize(mul(v.normal, (float3x3)unity_WorldToObject));
+				o.worldPos = mul(unity_ObjectToWorld, v.vertex).xyz;				
 				return o;
 			}
 			

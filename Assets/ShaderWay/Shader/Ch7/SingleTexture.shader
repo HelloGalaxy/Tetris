@@ -1,4 +1,6 @@
-﻿Shader "Custom/SingleTexture" {
+﻿// Upgrade NOTE: replaced '_Object2World' with 'unity_ObjectToWorld'
+
+Shader "Custom/SingleTexture" {
 	
 	Properties {
 		_Color ("Color", Color) = (1,1,1,1)
@@ -42,7 +44,7 @@
 				v2f o;
 				o.pos = mul(UNITY_MATRIX_MVP, v.vertext);
 				o.worldNormal = UnityObjectToWorldNormal(v.normal);
-				o.worldPos = mul(_Object2World, v.vertext).xyz;
+				o.worldPos = mul(unity_ObjectToWorld, v.vertext).xyz;
 				o.uv = TRANSFORM_TEX(v.texcoord, _MainTex);
 				
 				return o;

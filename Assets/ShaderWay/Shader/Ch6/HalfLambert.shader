@@ -1,4 +1,6 @@
-﻿Shader "Custom/HalfLambert" {
+﻿// Upgrade NOTE: replaced '_World2Object' with 'unity_WorldToObject'
+
+Shader "Custom/HalfLambert" {
 
 		Properties{
 			_Diffuse ("Difusse", Color) = (1,1,1,1)
@@ -33,7 +35,7 @@
 					
 					//物体的顶点变换到世界坐标系
 					o.pos = mul(UNITY_MATRIX_MVP, v.vertex);
-					o.worldNormal = mul(v.normal, (float3x3)_World2Object);// mul(UNITY_MATRIX_MVP, v.normal);				
+					o.worldNormal = mul(v.normal, (float3x3)unity_WorldToObject);// mul(UNITY_MATRIX_MVP, v.normal);				
 					return o;
 				}
 				
