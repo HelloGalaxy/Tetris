@@ -45,7 +45,9 @@ Shader "Custom/SingleTexture" {
 				o.pos = mul(UNITY_MATRIX_MVP, v.vertext);
 				o.worldNormal = UnityObjectToWorldNormal(v.normal);
 				o.worldPos = mul(unity_ObjectToWorld, v.vertext).xyz;
-				o.uv = TRANSFORM_TEX(v.texcoord, _MainTex);
+				
+				//o.uv = TRANSFORM_TEX(v.texcoord, _MainTex);
+				o.uv =  v.texcoord.xy * _MainTex_ST.xy + _MainTex_ST.zw;
 				
 				return o;
 			}
