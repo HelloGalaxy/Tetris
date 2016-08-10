@@ -1,6 +1,6 @@
 ﻿// Upgrade NOTE: replaced '_Object2World' with 'unity_ObjectToWorld'
 
-Shader "Custom/SingleTexture" {
+Shader "Custom/AlphaDoubleSide" {
 	
 	Properties {
 		_Color ("Color", Color) = (1,1,1,1)
