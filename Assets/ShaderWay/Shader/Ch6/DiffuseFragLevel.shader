@@ -1,4 +1,6 @@
-﻿// Upgrade NOTE: replaced '_World2Object' with 'unity_WorldToObject'
+﻿// Upgrade NOTE: replaced 'mul(UNITY_MATRIX_MVP,*)' with 'UnityObjectToClipPos(*)'
+
+// Upgrade NOTE: replaced '_World2Object' with 'unity_WorldToObject'
 
 Shader "Custom/DiffuseFragLevel" {
 
@@ -34,7 +36,7 @@ Shader "Custom/DiffuseFragLevel" {
 					v2f o;
 					
 					//物体的顶点变换到世界坐标系
-					o.pos = mul(UNITY_MATRIX_MVP, v.vertex);
+					o.pos = UnityObjectToClipPos(v.vertex);
 					o.worldNormal = mul(v.normal, (float3x3)unity_WorldToObject);//  mul(UNITY_MATRIX_MVP, v.normal);				
 					return o;
 				}

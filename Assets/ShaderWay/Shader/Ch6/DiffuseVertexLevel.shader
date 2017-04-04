@@ -1,4 +1,6 @@
-﻿// Upgrade NOTE: replaced '_World2Object' with 'unity_WorldToObject'
+﻿// Upgrade NOTE: replaced 'mul(UNITY_MATRIX_MVP,*)' with 'UnityObjectToClipPos(*)'
+
+// Upgrade NOTE: replaced '_World2Object' with 'unity_WorldToObject'
 
 Shader "Custom/DiffuseVertexLevel" {
 
@@ -34,7 +36,7 @@ Shader "Custom/DiffuseVertexLevel" {
 					v2f o;
 					
 					//物体的顶点变换到世界坐标系
-					o.pos = mul(UNITY_MATRIX_MVP, v.vertex);
+					o.pos = UnityObjectToClipPos(v.vertex);
 					
 					fixed3 ambient = UNITY_LIGHTMODEL_AMBIENT.xyz;
 					fixed3 worldNormal = normalize(mul(v.normal, (float3x3)unity_WorldToObject));
